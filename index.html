@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CartitaSammyRizitos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Lora:ital,wght@0,400;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-sobre: #ffc1cc;
+            --color-sobre-oscuro: #ff9eb2;
+            --color-papel: #fff9fa;
+            --color-texto: #5c3a41;
+            --color-sello: #e85a71;
+            --transicion: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Lora', serif;
+            background-image: url('lirios.jpg'); 
+            background-size: cover;
+            background-position: center;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 240, 245, 0.4);
+            backdrop-filter: blur(12px);
+            z-index: -1;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .pocket {
+            position: absolute;
+            top: 0; width: 100%; height: 100%;
+            background: var(--color-sobre);
+            clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+            z-index: 30;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0; width: 0; height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 120px solid var(--color-sobre-oscuro);
+            transform-origin: top;
+            transition: var(--transicion);
+            z-index: 40;
+        }
+
+        .seal {
+            position: absolute;
+            top: 105px; left: 50%;
+            width: 40px; height: 40px;
+            background: var(--color-sello);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            z-index: 45;
+            transition: var(--transicion);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 10px; left: 50%;
+            width: 90%; height: 180px;
+            background: var(--color-papel);
+            transform: translateX(-50%);
+            padding: 40px 30px;
+            border-radius: 5px;
+            z-index: 20;
+            transition: var(--transicion);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 193, 204, 0.3);
+            background: linear-gradient(to bottom, #fff9fa 0%, #fff0f3 100%);
+            border-left: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .open .flap { transform: rotateX(180deg); z-index: 5; }
+        .open .seal { opacity: 0; transform: translateX(-50%) translateY(-100px); }
+
+        .open .letter {
+            bottom: 50%;
+            transform: translateX(-50%) translateY(50%); 
+            
+            width: 550px; 
+            height: 800px; 
+            
+            max-width: 95vw;  
+            max-height: 90vh;
+            
+            z-index: 50;
+            padding: 80px 60px;
+            box-shadow: 0 30px 70px rgba(92, 58, 65, 0.3);
+            overflow-y: auto;
+        }
+
+        .letter-content {
+            opacity: 0;
+            transition: opacity 0.5s ease 0.8s;
+            width: 100%;
+        }
+        .open .letter-content { opacity: 1; }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: #d65a73;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .text-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .text-body p {
+            font-size: 1.15rem;
+            line-height: 2;
+            color: var(--color-texto);
+            text-align: center;
+            white-space: pre-wrap; 
+            word-spacing: 2px;
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            text-align: right;
+            margin-top: 40px;
+            color: #d65a73;
+            width: 100%;
+        }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: #fce4ec; border: none;
+            width: 30px; height: 30px; border-radius: 50%;
+            color: #d65a73; cursor: pointer; opacity: 0;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 60;
+        }
+        .open .close-btn { opacity: 1; }
+
+        .petal {
+            position: fixed; top: -50px; pointer-events: none;
+            z-index: 100; animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .hint {
+            position: absolute; bottom: -60px; width: 100%;
+            text-align: center; color: var(--color-texto);
+            font-weight: 500; animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% {transform:translateY(0);} 50% {transform:translateY(-10px);} }
+    </style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+    <source src="https://raw.githubusercontent.com/fabidz13/Canciones/main/a-ha%20-%20Take%20On%20Me%20(Official%20Video)%20%5B4K%5D.mp3" type="audio/mpeg">
+</audio>
+<audio id="paper">
+    <source src="papel.mp3" type="audio/mpeg">
+</audio>
+
+<div class="envelope-wrapper" id="mainWrapper" onclick="toggleLetter(true)">
+    <div class="flap"></div>
+    <div class="seal"></div>
+    <div class="pocket"></div>
+    
+    <div class="letter" id="letter">
+        <button class="close-btn" onclick="event.stopPropagation(); toggleLetter(false)">✕</button>
+        
+        <div class="letter-content">
+            <h1>Feliz Año Nuevo, SammyRizitos</h1>
+            <div class="text-body" id="textBody">
+                <p id="p1" data-text="Este nuevo año solo quiero que sepas algo sencillo, pero verdadero y muy sincero, quiero estar ahí para ti mi Reina."></p>
+                <p id="p2" data-text="En todo momento, o cuando lo requieras. En los días buenos, en los complicados, o incluso en silencio, si eso es lo que necesitas."></p>
+                <p id="p3" data-text="Siempre tendrás mi apoyo, porque me importas mucho, y porque estar para ti es algo que nace de mí."></p>
+                <p id="p4" data-text="No prometo perfección, pero sí presencia, cuidado y sinceridad."></p>
+            </div>
+            <div class="signature" id="signature"></div>
+        </div>
+    </div>
+
+    <div class="hint" id="hintText">Toca el sello para abrir 🌸</div>
+</div>
+
+<script>
+let isOpen = false;
+let hasTyped = false;
+
+function toggleLetter(shouldOpen) {
+    const wrapper = document.getElementById("mainWrapper");
+    const paperSound = document.getElementById("paper");
+    const music = document.getElementById("music");
+    const hint = document.getElementById("hintText");
+
+    if (shouldOpen && !isOpen) {
+        wrapper.classList.add("open");
+        isOpen = true;
+        hint.style.opacity = "0";
+        paperSound.play().catch(() => {});
+        music.volume = 0.4;
+        music.play().catch(() => {});
+
+        if (!hasTyped) {
+            setTimeout(startTyping, 1000);
+            createPetals();
+            hasTyped = true;
+        }
+    } else if (!shouldOpen && isOpen) {
+        wrapper.classList.remove("open");
+        isOpen = false;
+        hint.style.opacity = "1";
+    }
+}
+
+async function startTyping() {
+    const paragraphs = [
+        { id: "p1", text: "Este nuevo año solo quiero que sepas algo sencillo, pero verdadero y muy sincero, quiero estar ahí para ti mi Reina." },
+        { id: "p2", text: "En todo momento, o cuando lo requieras. En los días buenos, en los complicados, o incluso en silencio, si eso es lo que necesitas." },
+        { id: "p3", text: "Siempre tendrás mi apoyo, porque me importas mucho, y porque estar para ti es algo que nace de mí." },
+        { id: "p4", text: "No prometo perfección, pero sí presencia, cuidado y sinceridad." }
+    ];
+
+    for (const item of paragraphs) {
+        const pElement = document.getElementById(item.id);
+        const text = item.text;
+        
+        for (let i = 0; i <= text.length; i++) {
+            pElement.textContent = text.slice(0, i);
+            await new Promise(resolve => setTimeout(resolve, 40)); 
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    writeSignature();
+}
+
+function writeSignature() {
+    const sign = document.getElementById("signature");
+    const name = "— Con mucho cariño, Fabian";
+    let i = 0;
+    const interval = setInterval(() => {
+        sign.textContent += name.charAt(i);
+        i++;
+        if (i >= name.length) clearInterval(interval);
+    }, 100);
+}
+
+function createPetals() {
+    setInterval(() => {
+        if (!isOpen) return;
+        const petal = document.createElement("div");
+        petal.className = "petal";
+        const icons = ["🌸", "✨", "🌷", "🤍"];
+        petal.innerText = icons[Math.floor(Math.random() * icons.length)];
+        petal.style.left = Math.random() * 100 + "vw";
+        petal.style.fontSize = (Math.random() * 10 + 15) + "px";
+        petal.style.animationDuration = (Math.random() * 3 + 5) + "s";
+        document.body.appendChild(petal);
+        setTimeout(() => petal.remove(), 6000);
+    }, 600);
+}
+</script>
+
+</body>
+</html>
